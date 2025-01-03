@@ -43,10 +43,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'crispy_forms',
     'crispy_bootstrap5',
-    'App_Loing',
+    'App_Login',
     'App_Shop',
 ]
 CRISPY_TAMPLATE_PACK = 'bootstrap5'
+#coustom user model
+AUTH_USER_MODEL = 'App_Login.User'
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
