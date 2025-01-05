@@ -46,7 +46,7 @@ INSTALLED_APPS = [
     'App_Login',
     'App_Shop',
 ]
-CRISPY_TAMPLATE_PACK = 'bootstrap5'
+CRISPY_TEMPLATE_PACK = 'bootstrap5'
 #coustom user model
 AUTH_USER_MODEL = 'App_Login.User'
 MIDDLEWARE = [
@@ -134,5 +134,5 @@ MEDIA_ROOT = MEDIA_DIR
 MEDIA_URL = '/media/'
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
-LOGIN_URL = '/'
+LOGIN_URL = '/account/login'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
