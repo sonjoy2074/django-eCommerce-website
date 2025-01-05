@@ -38,8 +38,7 @@ def login_user(request):
             user = authenticate(username=uname, password=upass)
             if user is not None:
                 login(request, user)
-                return HttpResponse('User Logged In')
-                #return HttpResponseRedirect(reverse('App_Login:profile'))
+                return HttpResponseRedirect(reverse('App_Shop:home'))
 
     return render(request, 'App_Login/login.html', context={'form':form})
 
@@ -48,8 +47,7 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     messages.warning(request, 'Logged Out Successfully !!')
-    return HttpResponse('User Logged Out')
-    #return HttpResponseRedirect(reverse('App_Login:login')) 
+    return HttpResponseRedirect(reverse('App_Shop:home')) 
 
 @login_required
 def user_profile(request):
