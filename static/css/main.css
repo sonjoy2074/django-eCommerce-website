@@ -1,0 +1,29 @@
+.gallery-wrap .img-big-wrap img{
+    height: 450px;
+    width: auto;
+    display:inline-block;
+    cursor: zoom-in;
+}
+/* .gallery-wrap .img-small-wrap img{
+    width: 60px;
+    height: 60px;
+    cursor: pointer;
+} */
+.gallery-wrap .img-small-wrap .item-gallery{
+   width: 60px;
+    height: 60px;
+    display: inline-block;
+    margin: 7px 2px;
+    border: 1px solid #ddd;
+    overflow: hidden;
+}
+.gallery-wrap .img-small-wrap{
+    text-align: center;
+}
+.gallery-wrap .img-small-wrap img{
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: zoom-in;
+}
