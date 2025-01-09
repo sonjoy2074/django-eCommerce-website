@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block title_block %}Home{% endblock %}
+{% block body_block %}
+<div class="container my-5">
+    <div class="my-5">
+        <h2 class="mb-4">My Cart</h2>
+        <table class="table table-bordered table-hover align-middle">
+            <thead class="table-dark">
+                <tr>
+                    <th scope="col" width="10%">#</th>
+                    <th scope="col">Product Name</th>
+                    <th scope="col" class="text-center" width="25%">Quantity</th>
+                    <th scope="col" class="text-end" width="20%">Price</th>
+                    <th scope="col" class="text-center" width="15%">Remove</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cart in carts %}
+                <tr>
+                    <th scope="row">{{ forloop.counter }}</th>
+                    <td>{{ cart.item.name }}</td>
+                    <td class="text-center">
+                        <div class="d-flex align-items-center justify-content-center">
+                            <a href="#" class="btn btn-sm btn-outline-danger me-2"><i class="fa-solid fa-minus"></i></a>
+                            <span class="mx-2">{{ cart.quantity }}</span>
+                            <a href="#" class="btn btn-sm btn-outline-success ms-2"><i class="fa-solid fa-plus"></i></a>
+                        </div>
+                    </td>
+                    <td class="text-end">&#2547;{{ cart.get_total }}</td>
+                    <td class="text-center">
+                        <a href="#" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+                <tr class="fw-bold">
+                    <td></td>
+                    <td colspan="2" class="text-end">Total</td>
+                    <td class="text-end">&#2547;{{ order.get_total|floatformat:2 }}</td>
+                    <td></td>
+                </tr>
+                <tr>
+                    <td colspan="5" class="text-end">
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="{% url 'App_Shop:home' %}" class="btn btn-warning btn-m">
+                                <i class="fa-solid fa-shopping-cart"></i> Continue Shopping
+                            </a>
+                            <a href="#" class="btn btn-success btn-m">
+                                <i class="fa-solid fa-credit-card"></i> Checkout
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
