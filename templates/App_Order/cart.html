@@ -22,14 +22,14 @@
                     <td>{{ cart.item.name }}</td>
                     <td class="text-center">
                         <div class="d-flex align-items-center justify-content-center">
-                            <a href="#" class="btn btn-sm btn-outline-danger me-2"><i class="fa-solid fa-minus"></i></a>
+                            <a href="{% url 'App_Order:decrease_cart' pk=cart.item.pk %}" class="btn btn-sm btn-outline-danger me-2"><i class="fa-solid fa-minus"></i></a>
                             <span class="mx-2">{{ cart.quantity }}</span>
-                            <a href="#" class="btn btn-sm btn-outline-success ms-2"><i class="fa-solid fa-plus"></i></a>
+                            <a href="{% url 'App_Order:increase_cart' pk=cart.item.pk %}" class="btn btn-sm btn-outline-success ms-2"><i class="fa-solid fa-plus"></i></a>
                         </div>
                     </td>
                     <td class="text-end">&#2547;{{ cart.get_total }}</td>
                     <td class="text-center">
-                        <a href="#" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
+                        <a href="{% url 'App_Order:remove' pk=cart.item.pk %}" class="btn btn-sm btn-outline-danger"><i class="fa-solid fa-trash"></i></a>
                     </td>
                 </tr>
                 {% endfor %}
