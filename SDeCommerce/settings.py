@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'App_Login',
     'App_Shop',
     'App_Order',
+    'App_Payment',
 ]
 CRISPY_TEMPLATE_PACK = 'bootstrap5'
 #coustom user model
