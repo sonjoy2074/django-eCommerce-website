@@ -131,3 +131,16 @@ def purchase(request,val_id,tran_id):
         item.save()
     messages.success(request, 'Your order has been placed successfully.')
     return HttpResponseRedirect (reverse('App_Shop:home')) 
+
+@login_required
+def order_view(request):
+    try:
+        orders = Order.objects.filter(user=request.user, ordered=True)
+        context = {
+            'orders': orders
+        }
+    except Order.DoesNotExist:
+        messages.warning(request, 'You have no orders.')
+        return redirect('App_Shop:home')
+    
+    return render(request, 'App_Payment/order.html', context)
