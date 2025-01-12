@@ -1,10 +1,21 @@
-from django.shortcuts import render,HttpResponseRedirect
-from App_Order.models import Order
+from django.shortcuts import render,HttpResponseRedirect,redirect
+from App_Order.models import Order , Cart
 from App_Payment.models import BillingAddress
 from App_Payment.forms import BillingForm
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.urls import reverse
 # Create your views here.
+#for payment
+import requests
+from decimal import Decimal
+from sslcommerz_python_api import SSLCSession
+import socket
+from django.views.decorators.csrf import csrf_exempt
+
+
+
+
 @login_required
 def checkout(request):
     saved_address = BillingAddress.objects.get_or_create(user=request.user)
@@ -19,4 +30,104 @@ def checkout(request):
     order_qs = Order.objects.filter(user=request.user, ordered=False)
     order_items = order_qs[0].orderitems.all()
     order_total = order_qs[0].get_total()
-    return render(request, 'App_Payment/checkout.html', context={'form':form, 'order_items':order_items, 'order_total':order_total,})
+    return render(request, 'App_Payment/checkout.html', context={'form':form, 'order_items':order_items, 'order_total':order_total,'saved_address':saved_address})
+
+
+@login_required
+def payment(request):
+    saved_address = BillingAddress.objects.get_or_create(user=request.user)
+    saved_address = saved_address[0]
+    if not saved_address.is_fully_filled():
+        messages.info(request, 'Please complete shipping address.')
+        return redirect('App_Payment:checkout')
+    if not request.user.profile.is_fully_filled():
+        messages.info(request, 'Please complete profile details.')
+        return redirect('App_Login:profile')
+    store_id= 'sdcor678164f0ea9bd'
+    API_Key ='sdcor678164f0ea9bd@ssl'
+    mypayment = SSLCSession(
+    sslc_is_sandbox=True,
+    sslc_store_id=store_id,
+    sslc_store_pass=API_Key
+    )
+    status_url = request.build_absolute_uri(reverse('App_Payment:complete'))
+    mypayment.set_urls(
+    success_url=status_url,
+    fail_url=status_url,
+    cancel_url=status_url,
+    ipn_url=status_url
+    )
+    order_qs = Order.objects.filter(user=request.user, ordered=False)
+    order_items = order_qs[0].orderitems.all()
+    order_items_count = order_qs[0].orderitems.count()
+    order_total = order_qs[0].get_total()
+    mypayment.set_product_integration(
+    total_amount=Decimal(order_total),
+    currency='BDT',
+    product_category='Mixed',
+    product_name= order_items,
+    num_of_item=order_items_count,
+    shipping_method='Courier',
+    product_profile='None'
+    )
+    current_user = request.user
+    mypayment.set_customer_info(
+    name=current_user.profile.full_name,
+    email=current_user.email,
+    address1=current_user.profile.address_1,
+    address2=current_user.profile.address_1,
+    city=current_user.profile.city, postcode=current_user.profile.zipcode,
+    country=current_user.profile.country,
+    phone=current_user.profile.phone    
+    )
+
+    mypayment.set_shipping_info(
+    shipping_to=current_user.profile.full_name,
+    address=saved_address.address,
+    city=saved_address.city,
+    postcode=saved_address.zipcode,
+    country=saved_address.country
+    )
+    response_data = mypayment.init_payment()
+    
+    return redirect(response_data['GatewayPageURL'])
+    # if request.method == 'POST':
+    #     order_qs = Order.objects.filter(user=request.user, ordered=False)
+    #     order_items = order_qs[0].orderitems.all()
+    #     order_total = order_qs[0].get_total()
+    #     print(order_total)
+    #     print(order_items)
+    #     #sslcommerz payment gateway
+    #     sslc = SSLCSession(sslc_is_sandbox=True, sslc_store_id='testbox', sslc_store_pass='qwerty', sslc_redirect_url='') 
+
+@csrf_exempt
+def complete(request):
+    if request.method == 'POST' or request.method == 'post':
+        payment_data = request.POST
+        status = payment_data['status']
+        if status == 'VALID':
+            val_id = payment_data['val_id'] 
+            tran_id = payment_data['tran_id']
+            messages.success(request, f'Your payment is complete. Your Transaction ID: {tran_id}')
+            return HttpResponseRedirect(reverse('App_Payment:purchase', kwargs={'val_id':val_id, 'tran_id':tran_id}))
+        elif status == 'FAILED':
+            messages.warning(request, f'Your payment is failed! please try again.')
+
+    return render(request, 'App_Payment/complete.html', context={'payment_data':payment_data})  #context={'payment_data':payment_data}
+
+
+@login_required
+def purchase(request,val_id,tran_id):
+    order_qs = Order.objects.filter(user=request.user, ordered=False)
+    order = order_qs[0]
+    orderId = tran_id
+    order.ordered = True
+    order.orderId = orderId
+    order.paymentId = val_id
+    order.save()
+    cart_items = Cart.objects.filter(user=request.user, purchased=False)
+    for item in cart_items:
+        item.purchased = True
+        item.save()
+    messages.success(request, 'Your order has been placed successfully.')
+    return HttpResponseRedirect (reverse('App_Shop:home')) 
